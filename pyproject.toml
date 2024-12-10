@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "librarys web app"
+version = "0.1.0"
+description = "Web-application for Some library"
+authors = ["r1fox404 <r.ikt@yandex.ru>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.13"
+fastapi = {extras = ["standard"], version = "^0.115.6"}
+sqlalchemy = "^2.0.36"
+pydantic-settings = "^2.6.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

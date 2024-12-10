@@ -32,7 +32,7 @@ class DBConnection:
         return session
     
     
-    async def scoped_session(self) -> AsyncSession:
+    async def scoped_session(self) -> AsyncSession: #type: ignore
         session = self._get_scoped_session()
         yield session
         await session.close()

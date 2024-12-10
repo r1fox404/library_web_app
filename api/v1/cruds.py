@@ -65,7 +65,7 @@ class Crud:
         session: AsyncSession,
         input_model: Type[ModelType],
         input_schema: SchemaType,
-        partial: bool
+        partial: bool = False
     ) -> ModelType:
         for name, value in input_schema.model_dump(exclude_none=partial).items():
             setattr(input_model, name, value)

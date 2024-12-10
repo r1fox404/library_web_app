@@ -23,7 +23,7 @@ router = APIRouter(tags=["Borrows"])
 
 
 @router.get("/", response_model=List[SBorrow], status_code=status.HTTP_200_OK)
-async def get_books(
+async def get_borrows(
     session: Annotated[AsyncSession, Depends(db_conn.scoped_session)]
 ):
     books = await Crud.get_all(session=session, input_model=MBorrow)
@@ -33,15 +33,15 @@ async def get_books(
 
 
 @router.get("/{id}/", response_model=SBorrow, status_code=status.HTTP_200_OK)
-async def get_book_by_id(
+async def get_borrow_by_id(
     book: Annotated[SBorrow, Depends(SDepends.borrow)]
 ):
     return book
 
 
 @router.post("/", response_model=SBorrow, status_code=status.HTTP_201_CREATED)
-async def add_book(
-    book: Annotated[SBorrow, Depends(SDepends.borrow)],
+async def add_borrow(
+    book: Annotated[SBorrowCreate, Depends(SDepends.borrow)],
     session: Annotated[AsyncSession, Depends(db_conn.scoped_session)]
 ):
     return await Crud.create(
@@ -52,7 +52,7 @@ async def add_book(
 
 
 @router.put("/{id}/", response_model=SBorrow)
-async def update_book(
+async def update_borrow(
     book_in: Annotated[SBorrowUpdate, Depends()],
     book: Annotated[SBorrow, Depends(SDepends.borrow)],
     session: Annotated[AsyncSession, Depends(db_conn.scoped_session)]
@@ -65,7 +65,7 @@ async def update_book(
 
 
 @router.patch("/{id}/", response_model=SBorrow)
-async def update_book_partial(
+async def update_borrow_partial(
     book_in: Annotated[SBorrowUpdatePartial, Depends()],
     book: Annotated[SBorrow, Depends(SDepends.borrow)],
     session: Annotated[AsyncSession, Depends(db_conn.scoped_session)]
@@ -79,7 +79,7 @@ async def update_book_partial(
 
 
 @router.delete("/{id}/")
-async def delete_book(
+async def delete_borrow(
     book: Annotated[SBorrow, Depends(SDepends.borrow)],
     session: Annotated[AsyncSession, Depends(db_conn.scoped_session)]
 ):

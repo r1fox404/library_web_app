@@ -42,7 +42,7 @@ async def get_author_by_id(
 @router.post("/", response_model=SAuthor, status_code=status.HTTP_201_CREATED)
 async def add_author(
     author: Annotated[SAuthorCreate, Depends()],
-    session: AsyncSession = Depends(db_conn.scoped_session)
+    session: Annotated[AsyncSession, Depends(db_conn.scoped_session)]
 ):
     return await Crud.create(
         session=session,
@@ -54,8 +54,8 @@ async def add_author(
 @router.put("/{id}/", response_model=SAuthor)
 async def update_author(
     author_in: Annotated[SAuthorUpdate, Depends()],
-    author: SAuthor = Depends(SDepends.author),
-    session: AsyncSession = Depends(db_conn.scoped_session)
+    author: Annotated[SAuthor, Depends(SDepends.author)],
+    session: Annotated[AsyncSession, Depends(db_conn.scoped_session)]
 ):
     return await Crud.update(
         session=session,
@@ -67,8 +67,8 @@ async def update_author(
 @router.patch("/{id}/", response_model=SAuthor)
 async def update_author_partial(
     author_in: Annotated[SAuthorUpdatePartial, Depends()],
-    author: SAuthor = Depends(SDepends.author),
-    session: AsyncSession = Depends(db_conn.scoped_session)
+    author: Annotated[SAuthor, Depends(SDepends.author)],
+    session: Annotated[AsyncSession, Depends(db_conn.scoped_session)]
 ):
     return await Crud.update(
         session=session,

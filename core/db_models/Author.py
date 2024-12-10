@@ -3,7 +3,7 @@ from sqlalchemy.orm import Mapped
 from .Base import OrmBase
 
 
-class Author(OrmBase):
+class MAuthor(OrmBase):
     __tablename__ = "authors"
     
     first_name: Mapped[str]

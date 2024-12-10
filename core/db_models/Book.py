@@ -2,7 +2,7 @@ from sqlalchemy.orm import Mapped
 
 from .Base import OrmBase
 
-class Book(OrmBase):
+class MBook(OrmBase):
     __tablename__ = "books"
     
     name: Mapped[str]

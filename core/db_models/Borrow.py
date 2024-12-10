@@ -3,7 +3,7 @@ from sqlalchemy.orm import Mapped
 from .Base import OrmBase
 
 
-class Borrow(OrmBase):
+class MBorrow(OrmBase):
     __tablename__ = "borrows"
     
     book_id: Mapped[int]

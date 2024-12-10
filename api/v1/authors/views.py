@@ -8,11 +8,9 @@ from fastapi import (
     status
 )
 
-from api import cruds, model_depend
-from core import (
-    MAuthor,
-    db_conn
-)
+from api.v1.cruds import Crud
+from api.v1.dependencies import SDepends
+from core import db_conn, MAuthor
 from .schemas import (
     SAuthor,
     SAuthorCreate,
@@ -26,20 +24,18 @@ router = APIRouter(tags=["Authors"])
 
 @router.get("/", response_model=List[SAuthor], status_code=status.HTTP_200_OK)
 async def get_authors(
-    session: AsyncSession = Depends(db_conn.scoped_session)
+    session: Annotated[AsyncSession, Depends(db_conn.scoped_session)]
 ):
-    authors = await cruds.get_all(session=session, input_model=MAuthor)
+    authors = await Crud.get_all(session=session, input_model=MAuthor)
     if not authors:
         raise HTTPException(status_code=404, detail="Authors not found.")
     return authors
 
 
-@router.get("/{author_id}", response_model=SAuthor, status_code=status.HTTP_200_OK)
+@router.get("/{id}/", response_model=SAuthor, status_code=status.HTTP_200_OK)
 async def get_author_by_id(
-    author: SAuthor = Depends(model_depend.item_by_id)
+    author: Annotated[SAuthor, Depends(SDepends.author)]
 ):
-    if not author:
-        raise HTTPException(status_code=404, detail="Author not found.")
     return author
 
 
@@ -48,52 +44,46 @@ async def add_author(
     author: Annotated[SAuthorCreate, Depends()],
     session: AsyncSession = Depends(db_conn.scoped_session)
 ):
-    return await cruds.create(
+    return await Crud.create(
         session=session,
         input_model=MAuthor,
         input_schema=author
     )
 
 
-@router.put("/{author_id}", response_model=SAuthor, status_code=status.HTTP_200_OK)
+@router.put("/{id}/", response_model=SAuthor)
 async def update_author(
     author_in: Annotated[SAuthorUpdate, Depends()],
-    author: SAuthor = Depends(model_depend.item_by_id),
+    author: SAuthor = Depends(SDepends.author),
     session: AsyncSession = Depends(db_conn.scoped_session)
 ):
-    if not author:
-        raise HTTPException(status_code=404, detail="Author not found")
-    return await cruds.update(
+    return await Crud.update(
         session=session,
-        input_model=MAuthor,
+        input_model=author,
         input_schema=author_in
     )
 
 
-@router.patch("/{author_id}", response_model=SAuthor, status_code=status.HTTP_200_OK)
+@router.patch("/{id}/", response_model=SAuthor)
 async def update_author_partial(
     author_in: Annotated[SAuthorUpdatePartial, Depends()],
-    author: SAuthor = Depends(model_depend.item_by_id),
+    author: SAuthor = Depends(SDepends.author),
     session: AsyncSession = Depends(db_conn.scoped_session)
 ):
-    if not author:
-        raise HTTPException(status_code=404, detail="Author not found")
-    return await cruds.update(
+    return await Crud.update(
         session=session,
-        input_model=MAuthor,
+        input_model=author,
         input_schema=author_in,
         partial=True
     )
 
 
-@router.delete("/{author_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{id}/")
 async def delete_author(
-    author: SAuthor = Depends(model_depend.item_by_id),
+    author: SAuthor = Depends(SDepends.author),
     session: AsyncSession = Depends(db_conn.scoped_session)
 ):
-    if not author:
-        raise HTTPException(status_code=404, detail="Author not found")
-    return await cruds.delete(
+    return await Crud.delete(
         session=session,
         input_model=author
     )

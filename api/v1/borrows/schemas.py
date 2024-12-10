@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class SBorrowBase(BaseModel):
@@ -26,5 +26,6 @@ class SBorrowUpdatePartial(SBorrowCreate):
 
 
 class SBorrow(SBorrowBase):
+    model_config = ConfigDict(from_attributes=True)
 
     id: int

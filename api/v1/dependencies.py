@@ -1,29 +1,29 @@
-from typing import Annotated, Type
+from typing import Annotated
 
-from fastapi import Depends, Path
+from fastapi import Depends, Path, status, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api import cruds, ModelType
-from core import db_conn
+from api.v1.cruds import Crud
+from core import db_conn, MAuthor, MBook, MBorrow
 
 
 class SDepends:
     
     @classmethod
-    async def item_by_id(
+    async def author(
         cls,
-        *,
         id: Annotated[int, Path],
-        input_model: Type[ModelType],
         session: AsyncSession = Depends(db_conn.scoped_session),
-    ) -> ModelType:
-        item = await cruds.get_by_id(
+    ) -> MAuthor:
+        item = await Crud.get_by_id(
             session=session,
-            input_model=input_model,
+            input_model=MAuthor,
             id=id
         )
         if item is not None:
             return item
-
-
-model_depend = SDepends()
+        
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Author by id {id} not found."
+        )

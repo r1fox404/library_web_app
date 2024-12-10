@@ -1,16 +1,21 @@
-from typing import List, TypeVar, Type
+from typing import List, Type, TypeVar
 
 from sqlalchemy import Result, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core import OrmBase
-from .authors.schemas import SAuthorCreate
-from .books.schemas import SBookCreate
-from .borrows.schemas import SBorrowCreate
+from .authors.schemas import SAuthorUpdate, SAuthorUpdatePartial
+from .books.schemas import SBookUpdate, SBookUpdatePartial
+from .borrows.schemas import SBorrowUpdate, SBorrowUpdatePartial
 
 
-ModelType = TypeVar("ModelType", bound=OrmBase)
-SchemaType = TypeVar("SchemaType", SAuthorCreate, SBookCreate, SBorrowCreate)
+ModelType = TypeVar("OrmModel", bound=OrmBase)
+SchemaType = TypeVar(
+    "PydanticSchema", 
+    SAuthorUpdate, SAuthorUpdatePartial,
+    SBookUpdate, SBookUpdatePartial,
+    SBorrowUpdate, SBorrowUpdatePartial
+)
 
 
 class Crud:
@@ -60,9 +65,9 @@ class Crud:
         session: AsyncSession,
         input_model: Type[ModelType],
         input_schema: SchemaType,
-        partial: bool = False
+        partial: bool
     ) -> ModelType:
-        for name, value in input_schema.model_dump(exclude_unset=partial).items():
+        for name, value in input_schema.model_dump(exclude_none=partial).items():
             setattr(input_model, name, value)
         await session.commit()
         return input_model
@@ -77,6 +82,3 @@ class Crud:
     ):
         await session.delete(input_model)
         await session.commit()
-
-
-cruds = Crud()

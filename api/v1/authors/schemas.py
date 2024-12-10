@@ -1,4 +1,5 @@
-from pydantic import BaseModel
+from typing import Optional
+from pydantic import BaseModel, ConfigDict
 
 
 class SAuthorBase(BaseModel):
@@ -18,11 +19,12 @@ class SAuthorUpdate(SAuthorCreate):
 
 class SAuthorUpdatePartial(SAuthorCreate):
 
-    first_name: str | None = None
-    last_name: str | None = None
-    birthday: str | None = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    birthday: Optional[str] = None
 
 
 class SAuthor(SAuthorBase):
+    model_config = ConfigDict(from_attributes=True)
 
     id: int

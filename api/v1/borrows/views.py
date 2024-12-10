@@ -41,7 +41,7 @@ async def get_borrow_by_id(
 
 @router.post("/", response_model=SBorrow, status_code=status.HTTP_201_CREATED)
 async def add_borrow(
-    book: Annotated[SBorrowCreate, Depends(SDepends.borrow)],
+    book: Annotated[SBorrowCreate, Depends()],
     session: Annotated[AsyncSession, Depends(db_conn.scoped_session)]
 ):
     return await Crud.create(

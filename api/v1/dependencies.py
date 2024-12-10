@@ -50,7 +50,7 @@ class SDepends:
     
     
     @classmethod
-    async def book(
+    async def borrow(
         cls,
         id: Annotated[int, Path],
         session: AsyncSession = Depends(db_conn.scoped_session),

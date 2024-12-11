@@ -22,7 +22,7 @@ from .schemas import (
 router = APIRouter(tags=["Borrows"])
 
 
-@router.get("/", response_model=List[SBorrow], status_code=status.HTTP_200_OK)
+@router.get("", response_model=List[SBorrow], status_code=status.HTTP_200_OK)
 async def get_borrows(
     session: Annotated[AsyncSession, Depends(db_conn.scoped_session)]
 ):
@@ -32,14 +32,14 @@ async def get_borrows(
     return books
 
 
-@router.get("/{id}/", response_model=SBorrow, status_code=status.HTTP_200_OK)
+@router.get("/{id}", response_model=SBorrow, status_code=status.HTTP_200_OK)
 async def get_borrow_by_id(
     book: Annotated[SBorrow, Depends(SDepends.borrow)]
 ):
     return book
 
 
-@router.post("/", response_model=SBorrow, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=SBorrow, status_code=status.HTTP_201_CREATED)
 async def add_borrow(
     book: Annotated[SBorrowCreate, Depends()],
     session: Annotated[AsyncSession, Depends(db_conn.scoped_session)]
@@ -51,7 +51,7 @@ async def add_borrow(
     )
 
 
-@router.put("/{id}/", response_model=SBorrow)
+@router.put("/{id}", response_model=SBorrow)
 async def update_borrow(
     book_in: Annotated[SBorrowUpdate, Depends()],
     book: Annotated[SBorrow, Depends(SDepends.borrow)],
@@ -64,7 +64,7 @@ async def update_borrow(
     )
 
 
-@router.patch("/{id}/", response_model=SBorrow)
+@router.patch("/{id}", response_model=SBorrow)
 async def update_borrow_partial(
     book_in: Annotated[SBorrowUpdatePartial, Depends()],
     book: Annotated[SBorrow, Depends(SDepends.borrow)],
@@ -78,7 +78,7 @@ async def update_borrow_partial(
     )
 
 
-@router.delete("/{id}/")
+@router.delete("/{id}")
 async def delete_borrow(
     book: Annotated[SBorrow, Depends(SDepends.borrow)],
     session: Annotated[AsyncSession, Depends(db_conn.scoped_session)]

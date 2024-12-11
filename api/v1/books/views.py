@@ -22,7 +22,7 @@ from .schemas import (
 router = APIRouter(tags=["Books"])
 
 
-@router.get("/", response_model=List[SBook], status_code=status.HTTP_200_OK)
+@router.get("", response_model=List[SBook], status_code=status.HTTP_200_OK)
 async def get_books(
     session: Annotated[AsyncSession, Depends(db_conn.scoped_session)]
 ):
@@ -32,14 +32,14 @@ async def get_books(
     return books
 
 
-@router.get("/{id}/", response_model=SBook, status_code=status.HTTP_200_OK)
+@router.get("/{id}", response_model=SBook, status_code=status.HTTP_200_OK)
 async def get_book_by_id(
     book: Annotated[SBook, Depends(SDepends.book)]
 ):
     return book
 
 
-@router.post("/", response_model=SBook, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=SBook, status_code=status.HTTP_201_CREATED)
 async def add_book(
     book: Annotated[SBookCreate, Depends()],
     session: Annotated[AsyncSession, Depends(db_conn.scoped_session)]
@@ -51,7 +51,7 @@ async def add_book(
     )
 
 
-@router.put("/{id}/", response_model=SBook)
+@router.put("/{id}", response_model=SBook)
 async def update_book(
     book_in: Annotated[SBookUpdate, Depends()],
     book: Annotated[SBook, Depends(SDepends.book)],
@@ -64,7 +64,7 @@ async def update_book(
     )
 
 
-@router.patch("/{id}/", response_model=SBook)
+@router.patch("/{id}", response_model=SBook)
 async def update_book_partial(
     book_in: Annotated[SBookUpdatePartial, Depends()],
     book: Annotated[SBook, Depends(SDepends.book)],
@@ -78,7 +78,7 @@ async def update_book_partial(
     )
 
 
-@router.delete("/{id}/")
+@router.delete("/{id}")
 async def delete_book(
     book: Annotated[SBook, Depends(SDepends.book)],
     session: Annotated[AsyncSession, Depends(db_conn.scoped_session)]

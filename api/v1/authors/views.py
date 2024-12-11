@@ -22,7 +22,7 @@ from .schemas import (
 router = APIRouter(tags=["Authors"])
 
 
-@router.get("/", response_model=List[SAuthor], status_code=status.HTTP_200_OK)
+@router.get("", response_model=List[SAuthor], status_code=status.HTTP_200_OK)
 async def get_authors(
     session: Annotated[AsyncSession, Depends(db_conn.scoped_session)]
 ):
@@ -32,14 +32,14 @@ async def get_authors(
     return authors
 
 
-@router.get("/{id}/", response_model=SAuthor, status_code=status.HTTP_200_OK)
+@router.get("/{id}", response_model=SAuthor, status_code=status.HTTP_200_OK)
 async def get_author_by_id(
     author: Annotated[SAuthor, Depends(SDepends.author)]
 ):
     return author
 
 
-@router.post("/", response_model=SAuthor, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=SAuthor, status_code=status.HTTP_201_CREATED)
 async def add_author(
     author: Annotated[SAuthorCreate, Depends()],
     session: Annotated[AsyncSession, Depends(db_conn.scoped_session)]
@@ -51,7 +51,7 @@ async def add_author(
     )
 
 
-@router.put("/{id}/", response_model=SAuthor)
+@router.put("/{id}", response_model=SAuthor)
 async def update_author(
     author_in: Annotated[SAuthorUpdate, Depends()],
     author: Annotated[SAuthor, Depends(SDepends.author)],
@@ -64,7 +64,7 @@ async def update_author(
     )
 
 
-@router.patch("/{id}/", response_model=SAuthor)
+@router.patch("/{id}", response_model=SAuthor)
 async def update_author_partial(
     author_in: Annotated[SAuthorUpdatePartial, Depends()],
     author: Annotated[SAuthor, Depends(SDepends.author)],
@@ -78,7 +78,7 @@ async def update_author_partial(
     )
 
 
-@router.delete("/{id}/")
+@router.delete("/{id}")
 async def delete_author(
     author: SAuthor = Depends(SDepends.author),
     session: AsyncSession = Depends(db_conn.scoped_session)

@@ -51,11 +51,12 @@ async def update(
     schema: SBookUpdate | SBookUpdatePartial,
     partial: bool = False
 ) -> MBook:
-    stmt = select(MAuthor).filter(MAuthor.id == schema.author_id)
-    result = await session.execute(statement=stmt)
-    author = result.scalar_one_or_none()
-    if not author:
-        raise ValueError(f"Author by id {schema.author_id} not found.")
+    if not partial:
+        stmt = select(MAuthor).filter(MAuthor.id == schema.author_id)
+        result = await session.execute(statement=stmt)
+        author = result.scalar_one_or_none()
+        if not author:
+            raise ValueError(f"Author by id {schema.author_id} not found.")
     for name, value in schema.model_dump(exclude_none=partial).items():
         setattr(model, name, value)
     await session.commit()

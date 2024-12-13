@@ -1,6 +1,12 @@
-from sqlalchemy.orm import Mapped
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import (
+    Mapped,
+    mapped_column,
+    relationship
+)
 
 from .Base import OrmBase
+
 
 class MBook(OrmBase):
     __tablename__ = "books"
@@ -8,4 +14,7 @@ class MBook(OrmBase):
     name: Mapped[str]
     description: Mapped[str]
     count: Mapped[int]
-    author_id: Mapped[int]
+    author_id: Mapped[int] = mapped_column(ForeignKey("authors.id"))
+    
+    author = relationship("MAuthor", back_populates="books")
+    orders = relationship("MBorrow", order_by="MBorrow.id")

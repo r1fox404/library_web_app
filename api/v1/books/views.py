@@ -8,9 +8,10 @@ from fastapi import (
     status
 )
 
-from api.v1.cruds import Crud
-from api.v1.dependencies import SDepends
 from core import db_conn, MBook
+from api.v1.authors.depends import author_by_id
+from .cruds import get_all, create, update, delete
+from .depends import book_by_id
 from .schemas import (
     SBook,
     SBookCreate,
@@ -26,64 +27,83 @@ router = APIRouter(tags=["Books"])
 async def get_books(
     session: Annotated[AsyncSession, Depends(db_conn.scoped_session)]
 ):
-    books = await Crud.get_all(session=session, input_model=MBook)
+    books = await get_all(
+        session=session,
+        model=MBook)
+    
     if not books:
         raise HTTPException(status_code=404, detail="Books not found.")
+    
     return books
 
 
 @router.get("/{id}", response_model=SBook, status_code=status.HTTP_200_OK)
 async def get_book_by_id(
-    book: Annotated[SBook, Depends(SDepends.book)]
+    book: Annotated[SBook, Depends(book_by_id)]
 ):
     return book
 
 
 @router.post("", response_model=SBook, status_code=status.HTTP_201_CREATED)
 async def add_book(
-    book: Annotated[SBookCreate, Depends()],
+    book_schema: Annotated[SBookCreate, Depends()],
     session: Annotated[AsyncSession, Depends(db_conn.scoped_session)]
-):
-    return await Crud.create(
-        session=session,
-        input_model=MBook,
-        input_schema=book
-    )
+):  
+    try:
+        item = await create(
+            session=session,
+            model=MBook,
+            schema=book_schema
+        )
+    except ValueError:
+        raise HTTPException(status_code=404, detail="Author does not exist")
+    
+    return item
 
 
 @router.put("/{id}", response_model=SBook)
 async def update_book(
-    book_in: Annotated[SBookUpdate, Depends()],
-    book: Annotated[SBook, Depends(SDepends.book)],
+    book_schema: Annotated[SBookUpdate, Depends()],
+    book_model: Annotated[SBook, Depends(book_by_id)],
     session: Annotated[AsyncSession, Depends(db_conn.scoped_session)]
 ):
-    return await Crud.update(
-        session=session,
-        input_model=book,
-        input_schema=book_in
-    )
+    try:
+        item = await update(
+            session=session,
+            model=book_model,
+            schema=book_schema
+        )
+    except ValueError:
+        raise HTTPException(status_code=404, detail="Author does not exist")
+    
+    return item
 
 
 @router.patch("/{id}", response_model=SBook)
 async def update_book_partial(
-    book_in: Annotated[SBookUpdatePartial, Depends()],
-    book: Annotated[SBook, Depends(SDepends.book)],
+    book_schema: Annotated[SBookUpdatePartial, Depends()],
+    book_model: Annotated[SBook, Depends(book_by_id)],
     session: Annotated[AsyncSession, Depends(db_conn.scoped_session)]
 ):
-    return await Crud.update(
-        session=session,
-        input_model=book,
-        input_schema=book_in,
-        partial=True
-    )
+    try:
+        item = await update(
+            session=session,
+            model=book_model,
+            schema=book_schema,
+            partial=True
+        )
+    except ValueError:
+        raise HTTPException(status_code=404, detail="Author does not exist")
+    
+    return item
 
 
 @router.delete("/{id}")
 async def delete_book(
-    book: Annotated[SBook, Depends(SDepends.book)],
+    book_model: Annotated[SBook, Depends(book_by_id)],
     session: Annotated[AsyncSession, Depends(db_conn.scoped_session)]
 ):
-    return await Crud.delete(
+    return await delete(
         session=session,
-        input_model=book
+        model=book_model
     )

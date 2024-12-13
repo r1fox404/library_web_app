@@ -10,19 +10,13 @@ class SBorrowBase(BaseModel):
 
 
 class SBorrowCreate(SBorrowBase):
-    pass
+    status: bool = True
 
 
-class SBorrowUpdate(SBorrowCreate):
-    pass
-
-
-class SBorrowUpdatePartial(SBorrowCreate):
+class SBorrowReturn(SBorrowCreate):
     
-    book_id: int | None = None
-    readers_name: str | None = None
-    issue_date: str | None = None
-    return_date: str | None = None
+    status: bool = False
+    return_date: str
 
 
 class SBorrow(SBorrowBase):

@@ -8,14 +8,13 @@ from fastapi import (
     status
 )
 
-from api.v1.cruds import Crud
-from api.v1.dependencies import SDepends
 from core import db_conn, MBorrow
+from .cruds import get_all, create
+from .depends import borrow_by_id
 from .schemas import (
     SBorrow,
     SBorrowCreate,
-    SBorrowUpdate,
-    SBorrowUpdatePartial
+    SBorrowReturn
 )
 
 
@@ -26,64 +25,35 @@ router = APIRouter(tags=["Borrows"])
 async def get_borrows(
     session: Annotated[AsyncSession, Depends(db_conn.scoped_session)]
 ):
-    books = await Crud.get_all(session=session, input_model=MBorrow)
+    books = await get_all(
+        session=session,
+        model=MBorrow)
+    
     if not books:
-        raise HTTPException(status_code=404, detail="Books not found.")
+        raise HTTPException(status_code=404, detail="Borrows not found.")
+    
     return books
 
 
 @router.get("/{id}", response_model=SBorrow, status_code=status.HTTP_200_OK)
 async def get_borrow_by_id(
-    book: Annotated[SBorrow, Depends(SDepends.borrow)]
+    borrow: Annotated[SBorrow, Depends(borrow_by_id)]
 ):
-    return book
+    return borrow
 
 
 @router.post("", response_model=SBorrow, status_code=status.HTTP_201_CREATED)
-async def add_borrow(
-    book: Annotated[SBorrowCreate, Depends()],
+async def add_book(
+    book_schema: Annotated[SBorrowCreate, Depends()],
     session: Annotated[AsyncSession, Depends(db_conn.scoped_session)]
-):
-    return await Crud.create(
-        session=session,
-        input_model=MBorrow,
-        input_schema=book
-    )
-
-
-@router.put("/{id}", response_model=SBorrow)
-async def update_borrow(
-    book_in: Annotated[SBorrowUpdate, Depends()],
-    book: Annotated[SBorrow, Depends(SDepends.borrow)],
-    session: Annotated[AsyncSession, Depends(db_conn.scoped_session)]
-):
-    return await Crud.update(
-        session=session,
-        input_model=book,
-        input_schema=book_in
-    )
-
-
-@router.patch("/{id}", response_model=SBorrow)
-async def update_borrow_partial(
-    book_in: Annotated[SBorrowUpdatePartial, Depends()],
-    book: Annotated[SBorrow, Depends(SDepends.borrow)],
-    session: Annotated[AsyncSession, Depends(db_conn.scoped_session)]
-):
-    return await Crud.update(
-        session=session,
-        input_model=book,
-        input_schema=book_in,
-        partial=True
-    )
-
-
-@router.delete("/{id}")
-async def delete_borrow(
-    book: Annotated[SBorrow, Depends(SDepends.borrow)],
-    session: Annotated[AsyncSession, Depends(db_conn.scoped_session)]
-):
-    return await Crud.delete(
-        session=session,
-        input_model=book
-    )
+):  
+    try:
+        item = await create(
+            session=session,
+            model=MBorrow,
+            schema=book_schema
+        )
+    except ValueError:
+        raise HTTPException(status_code=404, detail="Book does not exist or count over")
+    
+    return item

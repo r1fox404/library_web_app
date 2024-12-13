@@ -8,11 +8,12 @@ from fastapi import (
     status
 )
 
-from api.v1.cruds import Crud
-from api.v1.dependencies import SDepends
 from core import db_conn, MAuthor
+from .cruds import get_all, create, update, delete
+from .depends import author_by_id
 from .schemas import (
     SAuthor,
+    SAuthorView,
     SAuthorCreate,
     SAuthorUpdate,
     SAuthorUpdatePartial
@@ -22,68 +23,71 @@ from .schemas import (
 router = APIRouter(tags=["Authors"])
 
 
-@router.get("", response_model=List[SAuthor], status_code=status.HTTP_200_OK)
+@router.get("", response_model=List[SAuthorView], status_code=status.HTTP_200_OK)
 async def get_authors(
     session: Annotated[AsyncSession, Depends(db_conn.scoped_session)]
 ):
-    authors = await Crud.get_all(session=session, input_model=MAuthor)
+    authors = await get_all(
+        session=session,
+        model=MAuthor)
+    
     if not authors:
         raise HTTPException(status_code=404, detail="Authors not found.")
+    
     return authors
 
 
 @router.get("/{id}", response_model=SAuthor, status_code=status.HTTP_200_OK)
 async def get_author_by_id(
-    author: Annotated[SAuthor, Depends(SDepends.author)]
+    author_schema: Annotated[SAuthor, Depends(author_by_id)]
 ):
-    return author
+    return author_schema
 
 
 @router.post("", response_model=SAuthor, status_code=status.HTTP_201_CREATED)
 async def add_author(
-    author: Annotated[SAuthorCreate, Depends()],
+    author_schema: Annotated[SAuthorCreate, Depends()],
     session: Annotated[AsyncSession, Depends(db_conn.scoped_session)]
 ):
-    return await Crud.create(
+    return await create(
         session=session,
-        input_model=MAuthor,
-        input_schema=author
-    )
+        model=MAuthor,
+        schema=author_schema)
 
 
 @router.put("/{id}", response_model=SAuthor)
 async def update_author(
-    author_in: Annotated[SAuthorUpdate, Depends()],
-    author: Annotated[SAuthor, Depends(SDepends.author)],
+    author_schema: Annotated[SAuthorUpdate, Depends()],
+    author_model: Annotated[SAuthor, Depends(author_by_id)],
     session: Annotated[AsyncSession, Depends(db_conn.scoped_session)]
 ):
-    return await Crud.update(
+    return await update(
         session=session,
-        input_model=author,
-        input_schema=author_in
+        model=author_model,
+        schema=author_schema
     )
 
 
 @router.patch("/{id}", response_model=SAuthor)
 async def update_author_partial(
-    author_in: Annotated[SAuthorUpdatePartial, Depends()],
-    author: Annotated[SAuthor, Depends(SDepends.author)],
+    author_schema: Annotated[SAuthorUpdatePartial, Depends()],
+    author_model: Annotated[SAuthor, Depends(author_by_id)],
     session: Annotated[AsyncSession, Depends(db_conn.scoped_session)]
 ):
-    return await Crud.update(
+    return await update(
         session=session,
-        input_model=author,
-        input_schema=author_in,
+        model=author_model,
+        schema=author_schema,
         partial=True
     )
 
 
 @router.delete("/{id}")
 async def delete_author(
-    author: SAuthor = Depends(SDepends.author),
-    session: AsyncSession = Depends(db_conn.scoped_session)
+    author_model: Annotated[SAuthor, Depends(author_by_id)],
+    session: Annotated[AsyncSession, Depends(db_conn.scoped_session)]
 ):
-    return await Crud.delete(
+    return await delete(
         session=session,
-        input_model=author
+        model=author_model
     )

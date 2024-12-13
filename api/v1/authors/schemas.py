@@ -1,5 +1,7 @@
-from typing import Optional
+from typing import List, Optional
 from pydantic import BaseModel, ConfigDict
+
+from api.v1.books.schemas import SBook
 
 
 class SAuthorBase(BaseModel):
@@ -28,3 +30,7 @@ class SAuthor(SAuthorBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
+
+
+class SAuthorView(SAuthor):
+    books: Optional[List[SBook]]

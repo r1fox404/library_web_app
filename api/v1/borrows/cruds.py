@@ -3,10 +3,11 @@ from typing import List
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api.v1.books.schemas import SBookUpdatePartial
 from core import MBorrow, MBook
 from .schemas import (
     SBorrowCreate,
-    SBorrowReturn
+    SBorrowReturn,
 )
 
 
@@ -28,17 +29,20 @@ async def get_by_id(
     return await session.get(model, id)
 
 
+
 async def create(
     session: AsyncSession,
     model: MBorrow,
     schema: SBorrowCreate
-) -> MBook:
+) -> MBorrow:
     stmt = select(MBook).filter(MBook.id == schema.book_id, MBook.count > 0)
     result = await session.execute(statement=stmt)
-    author = result.scalar_one_or_none()
-    if not author:
+    book = result.scalar_one_or_none()
+    if not book:
         raise ValueError(f"Book by id {schema.book_id} not found or book over.")
     item = model(**schema.model_dump())
+    book.count -= 1
+    session.add(book)
     session.add(item)
     await session.commit()
     return item

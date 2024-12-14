@@ -7,7 +7,6 @@ from .Base import OrmBase
 class MBorrow(OrmBase):
     __tablename__ = "borrows"
     
-    status: Mapped[bool]
     book_id: Mapped[int] = mapped_column(ForeignKey("books.id"))
     readers_name: Mapped[str]
     issue_date: Mapped[str]

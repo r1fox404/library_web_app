@@ -17,4 +17,4 @@ class MBook(OrmBase):
     author_id: Mapped[int] = mapped_column(ForeignKey("authors.id"))
     
     author = relationship("MAuthor", back_populates="books")
-    orders = relationship("MBorrow", order_by="MBorrow.id")
+    borrows = relationship("MBorrow", order_by="MBorrow.id")

@@ -10,12 +10,11 @@ class SBorrowBase(BaseModel):
 
 
 class SBorrowCreate(SBorrowBase):
-    status: bool = True
+    pass
 
 
 class SBorrowReturn(SBorrowCreate):
     
-    status: bool = False
     return_date: str
 
 
